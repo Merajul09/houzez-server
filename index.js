@@ -57,6 +57,8 @@ async function run() {
         const usersCollection = client.db("houzez").collection("users");
         const propertyCollection = client.db("houzez").collection("properties");
         const bookingsCollection = client.db("houzez").collection("bookings");
+        const wishlistCollection = client.db("houzez").collection("wishlists");
+        const reviewCollection = client.db("houzez").collection("reviews");
 
         const verifyAdmin = async (req, res, next) => {
             const user = req.user
@@ -148,20 +150,19 @@ async function run() {
         // Get all rooms from db
         app.get('/properties', async (req, res) => {
             const category = req.query.category
-            console.log(category)
             let query = {}
             if (category && category !== 'null') query = { category }
             const result = await propertyCollection.find(query).toArray()
             res.send(result)
         })
 
-        // Save a room data in db
+        // Save a property data in db
         app.post('/property', async (req, res) => {
             const propertyData = req.body
             const result = await propertyCollection.insertOne(propertyData)
             res.send(result)
         })
-        // delete a room
+        // delete a property
         app.delete('/property/:id', async (req, res) => {
             const id = req.params.id
             const query = { _id: new ObjectId(id) }
@@ -198,6 +199,35 @@ async function run() {
                 $set: { booked: status },
             }
             const result = await propertyCollection.updateOne(query, updateDoc)
+            res.send(result)
+        })
+        // Save a property to wishlist in db
+        app.post('/wishlist', async (req, res) => {
+            const wishlistData = req.body
+            const result = await wishlistCollection.insertOne(wishlistData)
+            res.send(result)
+        })
+        // get all wishlist data from db
+        app.get('/wishlist/:email', async (req, res) => {
+            const email = req.params.users
+            const result = await wishlistCollection.find({ email }).toArray()
+            res.send(result)
+        })
+        // Save a property review in db
+        app.post('/review', async (req, res) => {
+            const reviewData = req.body
+            const result = await reviewCollection.insertOne(reviewData)
+            res.send(result)
+        })
+        // get all review data from db
+        app.get('/review/:email', async (req, res) => {
+            const email = req.params.users
+            const result = await reviewCollection.find({ email }).toArray()
+            res.send(result)
+        })
+        // Get all rooms from db
+        app.get('/reviews', async (req, res) => {
+            const result = await reviewCollection.find().toArray()
             res.send(result)
         })
 
